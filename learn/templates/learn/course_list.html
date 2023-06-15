@@ -7,6 +7,32 @@
     <title>Online Courses</title>
   </head>
   <body>
+    {% if user.is_authenticated %}
+    <p>
+      Username {{user.username}}, First name: {{user.first_name}}, Last name:
+      {{user.last_name}}
+    </p>
+
+    <div class="rightalign">
+      <div class="dropdown">
+        <button class="dropbtn">{{user.first_name}}</button>
+        <div class="dropdown-content">
+          <a href="{% url 'learn:logout' %}"> Logout </a>
+        </div>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="rightalign">
+      <div class="dropdown">
+        <button class="dropbtn">Visitor</button>
+        <div class="dropdown-content">
+          <a href="{% url 'learn:registration' %}"> Signup </a>
+          <a href="{% url 'learn:login' %}"> Login </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
     <h2>Popular courses list</h2>
 
     {% if course_list %}

@@ -2,9 +2,13 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import Course, Lesson, Enrollment
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.views import generic, View
 from django.http import Http404
+from django.contrib.auth import login, logout, authenticate
+import logging
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -68,6 +72,7 @@ class EnrollView(View):
 #         except Course.DoesNotExist:
 #             raise Http404("No course matches the given id.")
 
+
 class CourseListView(generic.ListView):
     template_name = "learn/course_list.html"
     context_object_name = "course_list"
@@ -76,6 +81,54 @@ class CourseListView(generic.ListView):
         courses = Course.objects.order_by("-total_enrollment")[:10]
         return courses
 
+
 class CourseDetailsView(generic.DetailView):
     model = Course
     template_name = "learn/course_details.html"
+
+
+def logout_request(request):
+    print("Logout the user `{}`".format(request.user.username))
+    logout(request)
+    return redirect("learn:popular_course_list")
+
+
+def login_request(request):
+    context = {}
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["psw"]
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect("learn:popular_course_list")
+        else:
+            return render(request, "learn/user_login.html", context)
+    else:
+        return render(request, 'learn/user_login.html', context)
+
+
+def registration_request(request):
+    context = {}
+    if request.method == "GET":
+        return render(request, "learn/user_registration.html", context)
+    elif request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['psw']
+        first_name = request.POST['firstname']
+        last_name = request.POST['lastname']
+        user_exist = False
+        try:
+            User.objects.get(username=username)
+            user_exist = True
+        except:
+            # If not, simply log this is a new user
+            logger.debug("{} is new user".format(username))
+        if not user_exist:
+            user = User.objects.create_user(username=username, first_name=first_name, last_name=last_name,
+                                            password=password)
+            user.save()
+            login(request, user)
+        return redirect("learn:popular_course_list")
+    else:
+        return render(request, "learn/user_registration.html", context)
