@@ -23,8 +23,8 @@ from . import views
 
 app_name = "learn"
 urlpatterns = [
-    path('', view=views.popular_course_list, name='popular_course_list'),
-    path('learn/<int:course_id>/enroll/', views.enroll, name='enroll'),
-    path('learn/<int:course_id>/', views.course_details, name='course_details'),
+    path('', view=views.CourseListView.as_view(), name='popular_course_list'),
+    path('<int:course_id>/enroll/', views.EnrollView.as_view(), name='enroll'),
+    path('<int:pk>/', views.CourseDetailsView.as_view(), name='course_details'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)\
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
