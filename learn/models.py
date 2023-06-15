@@ -1,11 +1,15 @@
 import sys
 from django.utils.timezone import now
-from django.db import models
+try:
+    from django.db import models
+except Exception:
+    print("There was an error loading django modules. Do you have django installed?")
+    sys.exit()
+
 from django.conf import settings
 import uuid
 
 
-# Create your models here.
 # Instructor model
 class Instructor(models.Model):
     user = models.ForeignKey(
@@ -63,42 +67,8 @@ class Course(models.Model):
         return "Name: " + self.name + "," + \
                "Description: " + self.description
 
-    def total_score(self):
-        total_score = 0
-        for question in self.question_set.all():
-            total_score += question.grade
-        return total_score
 
-
-# Question and Choice could be used for online-course
-class Question(models.Model):
-    lesson = models.ForeignKey(Course, on_delete=models.CASCADE)
-    question_text = models.CharField(max_length=200)
-    grade = models.IntegerField(default=1)
-
-    def __str__(self):
-        return self.question_text
-
-    def is_get_score(self, selected_ids):
-        all_answers = self.choice_set.filter(is_correct=True).count()
-        selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
-
-        if all_answers == selected_correct:
-            return True
-        else:
-            return False
-
-
-class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choice_text = models.CharField(max_length=200)
-    is_correct = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.choice_text
-
-
-# Lesson
+# Lesson model
 class Lesson(models.Model):
     title = models.CharField(max_length=200, default="title")
     order = models.IntegerField(default=0)
@@ -121,11 +91,3 @@ class Enrollment(models.Model):
     date_enrolled = models.DateField(default=now)
     mode = models.CharField(max_length=5, choices=COURSE_MODES, default=AUDIT)
     rating = models.FloatField(default=5.0)
-
-
-# One enrollment could have multiple submission
-# One submission could have multiple choices
-# One choice could belong to multiple submissions
-class Submission(models.Model):
-    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
-    chocies = models.ManyToManyField(Choice)

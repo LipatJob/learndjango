@@ -17,8 +17,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
+app_name = "learn"
 urlpatterns = [
-    path('', view = views.course_list, name = 'course_list')
-]
+    path('', view=views.popular_course_list, name='popular_course_list'),
+    path('learn/<int:course_id>/enroll/', views.enroll, name='enroll'),
+    path('learn/<int:course_id>/', views.course_details, name='course_details'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)\
+    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
