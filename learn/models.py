@@ -101,9 +101,11 @@ class Question(models.Model):
     grade = models.FloatField(default=1.0)
 
     def is_correct(self, selected_choice_ids):
-        all_answers = self.choice_set.filter(is_correct=True).count()
-        selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_choice_ids).count()
-        return all_answers == selected_correct
+        selected_correct_choices = self.choice_set.filter(
+            is_correct=True, id__in=selected_choice_ids).count()
+        selected_choices = self.choice_set.filter(
+            id__in=selected_choice_ids).count()
+        return selected_correct_choices == selected_choices
 
 
 class Choice(models.Model):

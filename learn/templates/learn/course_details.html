@@ -65,7 +65,7 @@
       <h2>{{ course.name }}</h2>
       <div class="card-columns-vertical">
         {% for lesson in course.lesson_set.all %}
-        <div class="card mt-1">
+        <div class="card mb-3">
           <div class="card-header">
             <h5>Lesson {{lesson.order|add:1}}: {{lesson.title}}</h5>
           </div>
@@ -83,16 +83,17 @@
             Start Exam
           </button>
           <div class="collapse" id="questions{{lesson.id}}">
-            <h2>{{ course.title }} Exam</h2>
+            <hr />
+            <h2>{{ course.name }} Exam</h2>
             <form action="{% url 'learn:result' course.id %}" method="POST">
               {% csrf_token %}
               <div>
                 {% for question in course.question_set.all %}
-                <div class="card">
+                <div class="card mb-3">
                   <div class="card-header">
-                    <h3 class="card-title">
+                    <h5 class="card-title">
                       Q{{ forloop.counter }}: {{ question.text }}
-                    </h3>
+                    </h5>
                   </div>
                   <div class="card-body">
                     <div class="list-group list-group-flush">

@@ -17,6 +17,7 @@ class QuestionsInLine(admin.StackedInline):
 
 
 class CourseAdmin(admin.ModelAdmin):
+    list_display = ['name']
     fields = ['pub_date', 'name', 'description']
     inlines = [LessonInline, QuestionsInLine]
 
