@@ -19,7 +19,7 @@ class EnrollView(View):
         user = request.user
         if not user.is_authenticated:
             return HttpResponseRedirect(reverse(viewname='learn:login'))
-        
+
         course = get_object_or_404(Course, pk=course_id)
         is_enrolled = check_if_enrolled(user, course)
         if not is_enrolled and user.is_authenticated:
@@ -109,29 +109,46 @@ def check_if_enrolled(user, course):
 
 class ExamResultView(View):
     def post(self, request, *args, **kwargs):
+        # Get the current user and the course object, then get the associated the enrollment object
         course_id = kwargs.get('pk')
+        user = request.user
         course = get_object_or_404(Course, pk=course_id)
-        enrollment = course.enrollment_set.get(user=request.user)
+        enrollment = course.enrollment_set.get(user=user)
+
+        # Create a new submission object referring to the enrollment
         submission = Submission.objects.create(enrollment=enrollment)
+
+        # Collect the selected choices from HTTP request object
         answers = self.extract_answers(request)
+
+        # Add each selected choice object to the submission object
         submission.choices.clear()
         for answer in answers:
             choice = get_object_or_404(Choice, pk=answer)
             submission.choices.add(choice)
+
+        # Redirect to a show_exam_result view with the submission id to show the exam result
         return HttpResponseRedirect(reverse(viewname='learn:result', args=(submission.id,)))
 
     def extract_answers(self, request):
         return [int(v) for k, v in request.POST.items() if k.startswith("choice")]
 
     def get(self, request, *args, **kwargs):
+        # Get the course object and submission object based on their ids in view arguments
         submission_id = kwargs.get('pk')
         submission = get_object_or_404(Submission, pk=submission_id)
+
+        # Get the selected choice ids from the submission record
         choices = submission.choices.all()
         choice_id = [choice.id for choice in choices]
-        print(choice_id)
+
+        # For each selected choice, check if it is a correct answer or not
+        # Calculate the total score by adding up the grades for all questions in the course
         score = self.calculate_score(submission)
         total_possible_score = self.get_total_possible_score(
             submission.enrollment.course)
+
+        # Add the course, selected_ids, and grade to context for rendering HTML page
         return render(
             request,
             "learn/exam_result.html",
