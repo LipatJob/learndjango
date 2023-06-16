@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    {% load static %} <link rel="stylesheet" href={% static 'learn/course.css'%}
-    />
+    {% load static %}
     <link
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -11,6 +10,7 @@
     <title>Online Courses</title>
   </head>
   <body>
+    <!-- Navigation bar -->
     <nav class="navbar navbar-light bg-light">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -22,7 +22,9 @@
             <a class="btn btn-link" href="#"
               >{{ user.first_name }}({{ user.username }})</a
             >
-            <a class="btn btn-link" href="{% url 'learn:logout' %}">Logout</a>
+            <a class="btn btn-link" href="{% url 'learn:logout' %}"
+              >Logout</a
+            >
           </li>
           {% else %}
           <li>
@@ -42,11 +44,13 @@
                 <input
                   type="password"
                   class="form-control"
-                  placeholder="Password"
+                  placeholder="Username"
                   name="psw"
                 />
                 <button class="btn btn-primary" type="submit">Login</button>
-                <a class="btn btn-link" href="{% url 'learn:registration' %}"
+                <a
+                  class="btn btn-link"
+                  href="{% url 'learn:registration' %}"
                   >Sign Up</a
                 >
               </div>
@@ -57,16 +61,12 @@
       </div>
     </nav>
 
-    <h2>Popular courses list</h2>
-
+    <!-- Page content -->
     {% if course_list %}
     <div class="container">
-      <!--Style root div with .container class -->
       <div class="card-deck">
-        <!--Style second div with .card-deck class -->
         {% for course in course_list %}
         <div class="card" style="width: 36rem">
-          <!--Style third level div with .card class -->
           <img
             class="card-img-left"
             src="{{MEDIA_URL}}/{{ course.image }}"
@@ -74,25 +74,24 @@
             height="240px"
             alt="Course image"
           />
-          <!--Style card image with .card-img-left class -->
           <div class="card-body bg-light">
-            <!--Style root div with .card-body and .bg-light class -->
             <h5 class="card-title">
               {{ course.name }},
               <span class="text-success">
-                <!--Style h5 with .card-title and span with .text-success class -->
                 {{ course.total_enrollment}} enrolled</span
               >
             </h5>
             <p class="card-text">{{ course.description}}</p>
-            <!--Style card description with .card-text class -->
             <form
               action="{% url 'learn:enroll' course.id %}"
               method="post"
             >
               {% csrf_token %}
-              <input class="btn btn-primary" type="submit" value="Enroll" />
-              <!--Style Enroll button with .btn and .btn-primary class -->
+              <input
+                class="btn btn-primary"
+                type="submit"
+                value="{% if course.is_enrolled %}Enter{% else %}Enroll{% endif %} "
+              />
             </form>
           </div>
         </div>

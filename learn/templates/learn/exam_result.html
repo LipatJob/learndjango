@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8" />
+  </head>
+
+  <body>
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-light bg-light">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="{% url 'learn:index' %}">Home</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+          {% if user.is_authenticated %}
+          <li>
+            <a class="btn btn-link" href="#"
+              >{{ user.first_name }}({{ user.username }})</a
+            >
+            <a class="btn btn-link" href="{% url 'learn:logout' %}">Logout</a>
+          </li>
+          {% else %}
+          <li>
+            <form
+              class="form-inline"
+              action="{% url 'onlinecourse:login' %}"
+              method="post"
+            >
+              {% csrf_token %}
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Username"
+                  name="username"
+                />
+                <input
+                  type="password"
+                  class="form-control"
+                  placeholder="Username"
+                  name="psw"
+                />
+                <button class="btn btn-primary" type="submit">Login</button>
+                <a
+                  class="btn btn-link"
+                  href="{% url 'onlinecourse:registration' %}"
+                  >Sign Up</a
+                >
+              </div>
+            </form>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Page content -->
+    <div class="container-fluid">
+      <h2>{{ course.name }} Exam Results</h2>
+      {% if passed %}
+      <div class="alert alert-success" role="alert">
+        <strong>Congragulations, {{ user.first_name }}!</strong> You have passed
+        the exam with a score of {{score}}/{{total_possible_score}}.
+      </div>
+      {% else %}
+      <div class="alert alert-danger" role="alert">
+        <strong>Failed!</strong> Sorry {{ user.first_name }}, you failed the
+        exam with a score of {{score}}/{{total_possible_score}}.
+      </div>
+      {% endif %} {% for question in course.question_set.all %}
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            Q{{ forloop.counter }}: {{ question.text }}
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="list-group list-group-flush">
+            {% for choice in question.choice_set.all%}
+            <div class="list-group-item">
+              {% if choice.is_correct and choice.id in selected_choice_ids%}
+              <p class="text-success">Correct answer: {{ choice.text }}</p>
+              {% elif choice.is_correct and choice.id not in selected_choice_ids%}
+              <p class="text-warning">Not selected: {{ choice.text }}</p>
+              {% elif not choice.is_correct and choice.id in selected_choice_ids%}
+              <p class="text-danger">Your Answer: {{ choice.text }}</p>
+              {% else %}
+              <p>{{ choice.text }}</p>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>
