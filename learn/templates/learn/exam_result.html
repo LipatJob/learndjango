@@ -31,7 +31,7 @@
           <li>
             <form
               class="form-inline"
-              action="{% url 'onlinecourse:login' %}"
+              action="{% url 'learn:login' %}"
               method="post"
             >
               {% csrf_token %}
@@ -51,7 +51,7 @@
                 <button class="btn btn-primary" type="submit">Login</button>
                 <a
                   class="btn btn-link"
-                  href="{% url 'onlinecourse:registration' %}"
+                  href="{% url 'learn:registration' %}"
                   >Sign Up</a
                 >
               </div>

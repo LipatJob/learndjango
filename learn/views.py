@@ -16,9 +16,11 @@ logger = logging.getLogger(__name__)
 class EnrollView(View):
     def post(self, request, *args, **kwargs):
         course_id = kwargs.get('course_id')
-        course = get_object_or_404(Course, pk=course_id)
         user = request.user
-
+        if not user.is_authenticated:
+            return HttpResponseRedirect(reverse(viewname='learn:login'))
+        
+        course = get_object_or_404(Course, pk=course_id)
         is_enrolled = check_if_enrolled(user, course)
         if not is_enrolled and user.is_authenticated:
             # Create an enrollment
@@ -30,7 +32,7 @@ class EnrollView(View):
 
 
 class CourseListView(generic.ListView):
-    template_name = 'onlinecourse/course_list_bootstrap.html'
+    template_name = 'learn/course_list.html'
     context_object_name = 'course_list'
 
     def get_queryset(self):
@@ -89,7 +91,9 @@ class RegistrationView(View):
                                             password=password)
             user.save()
             login(request, user)
-        return redirect("learn:index")
+            return redirect("learn:index")
+        else:
+            return render(request, 'learn/user_registration_bootstrap.html', {"message": "User already exists."})
 
 
 def check_if_enrolled(user, course):

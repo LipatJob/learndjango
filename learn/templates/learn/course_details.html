@@ -31,7 +31,7 @@
           <li>
             <form
               class="form-inline"
-              action="{% url 'onlinecourse:login' %}"
+              action="{% url 'learn:login' %}"
               method="post"
             >
               {% csrf_token %}
@@ -71,7 +71,7 @@
           </div>
           <div class="card-body">{{lesson.content}}</div>
         </div>
-        {% endfor %}
+        {% endfor %} {% if user.is_authenticated %}
         <div>
           <button
             class="btn btn-primary"
@@ -118,6 +118,7 @@
             </form>
           </div>
         </div>
+        {% endif %}
       </div>
 
       <!-- Task: show questions and choices -->
